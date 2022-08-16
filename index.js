@@ -4,7 +4,7 @@ const consoleTable = require('console.table');
 const dotenv = require("dotenv").config()
 
 const position = [];
-const EmployeeName = [];
+const employeeName = [];
 
 const db = mysql2.createConnection({
     host: 'localhost',
@@ -35,8 +35,8 @@ const promptEmployee = () => {
                 "Exit"
             ],
         },
-    ]).then ((response) => {
-        switch(response.options) {
+    ]).then((response) => {
+        switch (response.options) {
             case "View departments":
                 viewDepartment()
                 break;
@@ -68,22 +68,144 @@ const viewDepartment = () => {
     db.query("SELECT * FROM department", (err, res) => {
         if (err)
             throw err;
-            console.table(res)
-            promptEmployee();
+        console.table(res)
+        promptEmployee();
     })
 }
 
-
+const addDepartment = () => {
+    inquirer.prompt(
+        {
+            type: "input",
+            name: "department",
+            message: "Input name of Department",
+        })
+        .then(res => {
+            db.query("INSERT INTO department SET ?",
+                {
+                    department_name: res.department
+                },
+                (err, res) => {
+                    if (err)
+                        throw err;
+                    console.log("Department has been added.");
+                    promptEmployee();
+                })
+        })
+}
 
 const viewRoles = () => {
     db.query("SELECT title FROM roles", (err, res) => {
         if (err)
             throw err;
-            console.table(res)
-            promptEmployee();
+        console.table(res)
+        promptEmployee();
+    })
+}
+
+const addRole = () => {
+    db.query("SELECT * FROM department", (err, res) => {
+        if (err)
+            throw err;
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "role",
+                message: "Input name of the new role",
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "Input the salary of this role",
+            },
+            {
+                type: "list",
+                name: "departmentId",
+                message: "Choose the Department ID",
+                choices:
+                    res.map(department => department.department_name)
+            }
+        ]).then(data => {
+            const departmentId = res.find(department => department.department_name === data.departmentId)
+            db.query("INSERT INTO roles_table SET ?", {
+                title: data.role, salary: data.salary, departmentId: departmentId.id
+            },
+                err => {
+                    if (err)
+                        throw err;
+                    console.log("Role has been added.")
+                    promptEmployee();
+                })
+        })
     })
 }
 
 const viewEmployees = () => {
-    db.query("SELECT first_name, last_name FROM employees", )
+    db.query("SELECT first_name, last_name FROM employees", (err, res) => {
+        if (err)
+            throw err;
+        console.table(res)
+        promptEmployee();
+    })
+}
+
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "firstName",
+            message: "Input the employee's first name",
+        },
+        {
+            type: "input",
+            name: "lastName",
+            message: "Input the employee's last name",
+        },
+        {
+            type: "input",
+            name: "roleId",
+            message: "Input the employee's role ID",
+        },
+        {
+            type: "input",
+            name: "managerId",
+            message: "Input the ID of the employee's manager",
+        }
+    ]).then(res => {
+        db.query("INSERT INTO employee SET ?",
+            {
+                first_name: res.firstName,
+                last_name: res.lastName,
+                role_id: res.roleId,
+                manager_id: res.managerId,
+            },
+            (err, res) => {
+                if (err)
+                    throw err;
+                console.log("New employee has been added.")
+                promptEmployee();
+            })
+    })
+}
+
+const updateEmployeeRole = () => {
+    db.query('SELECT CONCAT(employee.first_name, " ", employee.last_name) AS employeeName FROM employee',
+        function (err, res) {
+            if (err)
+                throw err;
+            for (let i = 0; i < res.length; i++) {
+                let name = res[i].employeeName;
+                name.push(name);
+            }
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "employeeChosen",
+                    message: "Which employee's role do you want to update?",
+                    choices: names
+                    // this might be an issue to look into 
+                }
+            ])
+        }
+    )
 }
