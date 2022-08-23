@@ -195,7 +195,7 @@ const updateEmployeeRole = () => {
                 throw err;
             for (let i = 0; i < res.length; i++) {
                 let name = res[i].employeeName;
-                name.push(name);
+                names.push(name);
             }
             inquirer.prompt([
                 {
@@ -205,7 +205,37 @@ const updateEmployeeRole = () => {
                     choices: names
                     // this might be an issue to look into 
                 }
-            ])
-        }
-    )
+            ]).then((res) => {
+                let employee = res.employeeChosen;
+                db.query("SELECT role_table.title AS Role_Title FROM role_table",
+                    function (err, res) {
+                        if (err)
+                            throw err;
+                        for (let i = 0; i < res.length; i++) {
+                            let role = res[i].Role_Title;
+                            roles.push(role);
+                        }
+                        inquirer.prompt([
+                            {
+                                type: "list",
+                                name: "updateRole",
+                                message: "What is this employee's new role?",
+                                choices: roles
+                            }
+                        ]).then((res) => {
+                            let roleName = res.updateEmployeeRole;
+                            console.log("chosen role:", roleName);
+                            db.query("UPDATE employees SET ? WHERE CONCAT(employees.first_name,' ', employees.last_name) = '${employee}'; ",
+                                {
+                                    role_id: roles.indexOf(roleName) + 1
+                                },
+                                (err, res) => {
+                                    if (err) throw err;
+                                    console.log("Employee's role has been updated");
+                                    promptEmployee();
+                                });
+                        });
+                });
+            });
+        });
 }
