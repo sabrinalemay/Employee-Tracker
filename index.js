@@ -1,10 +1,10 @@
 const mysql2 = require('mysql2');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const dotenv = require("dotenv").config()
+require("dotenv").config()
 
-const position = [];
-const employeeName = [];
+const names = [];
+const roles = [];
 
 const db = mysql2.createConnection({
     host: 'localhost',
