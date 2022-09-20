@@ -14,15 +14,12 @@ const db = mysql2.createConnection({
     database: process.env.DB_NAME,
 });
 
-// db.connect(() => {
-//     promptEmployee()
-// })
 
 const promptEmployee = () => {
     return inquirer.prompt([
         {
             type: "list",
-            name: "options",
+            name: "option",
             message: "Please select what you would like to do.",
             choices: [
                 "View departments",
@@ -36,7 +33,8 @@ const promptEmployee = () => {
             ],
         },
     ]).then((response) => {
-        switch (response.options) {
+        let option = response.option;
+        switch (option) {
             case "View departments":
                 viewDepartment()
                 break;
@@ -47,6 +45,7 @@ const promptEmployee = () => {
                 viewRoles()
                 break;
             case "Add a role":
+                console.log("before adding role")
                 addRole()
                 break;
             case "View employees":
@@ -127,8 +126,9 @@ const addRole = () => {
             }
         ]).then(data => {
             const departmentId = res.find(department => department.department_name === data.departmentId)
-            db.query("INSERT INTO roles_table SET ?", {
-                title: data.role, salary: data.salary, departmentId: departmentId.id
+            console.log(departmentId)
+            db.query("INSERT INTO roles SET ?", {
+                title: data.role, salary: data.salary, department_id: departmentId.id
             },
                 err => {
                     if (err)
@@ -172,7 +172,7 @@ const addEmployee = () => {
             message: "Input the ID of the employee's manager",
         }
     ]).then(res => {
-        db.query("INSERT INTO employee SET ?",
+        db.query("INSERT INTO employees SET ?",
             {
                 first_name: res.firstName,
                 last_name: res.lastName,
@@ -189,7 +189,7 @@ const addEmployee = () => {
 }
 
 const updateEmployeeRole = () => {
-    db.query('SELECT CONCAT(employee.first_name, " ", employee.last_name) AS employeeName FROM employee',
+    db.query('SELECT CONCAT(employees.first_name, " ", employees.last_name) AS employeeName FROM employees',
         function (err, res) {
             if (err)
                 throw err;
@@ -207,7 +207,7 @@ const updateEmployeeRole = () => {
                 }
             ]).then((res) => {
                 let employee = res.employeeChosen;
-                db.query("SELECT role_table.title AS Role_Title FROM role_table",
+                db.query("SELECT roles.title AS Role_Title FROM roles",
                     function (err, res) {
                         if (err)
                             throw err;
@@ -239,3 +239,4 @@ const updateEmployeeRole = () => {
             });
         });
 }
+promptEmployee()
