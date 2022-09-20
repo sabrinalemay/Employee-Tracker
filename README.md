@@ -23,3 +23,6 @@ If you would like to contact me with questions, ideas, or ways you would improve
   My Email: [b33na1997@gmail.com](mailto:b33na1997@gmail.com)
 ## Github
 Here is my GitHub page: [https://github.com/sabrinalemay/Employee-Tracker]
+
+https://user-images.githubusercontent.com/103804456/191164272-e36fe731-0a73-4abc-a9af-f1e6ba34d713.mp4
+
